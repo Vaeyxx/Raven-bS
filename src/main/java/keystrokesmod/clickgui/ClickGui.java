@@ -194,8 +194,8 @@ public class ClickGui extends GuiScreen {
                     category = var4.next();
                     if (category.v(x, y) && !category.i(x, y) && !category.d(x, y) && m == 0) {
                         category.d(true);
-                        category.xx = x - category.getX();
-                        category.yy = y - category.getY();
+                        category.dragStartX = x - category.getX();
+                        category.dragStartY = y - category.getY();
                     }
 
                     if (category.d(x, y) && m == 0) {
@@ -287,5 +287,21 @@ public class ClickGui extends GuiScreen {
             }
         }
         return false;
+    }
+
+    public static void resetPosition() {
+        int xOffSet = 5;
+        int yOffSet = 5;
+        for(CategoryComponent category : categories.values()) {
+            category.fv(false);
+            category.x(xOffSet);
+            category.y(yOffSet);
+            xOffSet = xOffSet + 100;
+            if (xOffSet > 400) {
+                xOffSet = 5;
+                yOffSet += 120;
+            }
+        }
+
     }
 }
