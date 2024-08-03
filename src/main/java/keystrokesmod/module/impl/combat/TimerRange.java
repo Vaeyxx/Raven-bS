@@ -28,13 +28,12 @@ public class TimerRange extends Module {
     private long lastTimerTime = 0;
     private long lastLagTime = 0;
     public TimerRange() {
-        super("TimerRange", category.combat);
-        this.registerSetting(new DescriptionSetting("Use timer help you to beat opponent."));
+        super("TimerRange", category.combat, "Use timer help you to beat opponent.");
         this.registerSetting(lagTicks = new SliderSetting("Lag ticks", 2, 0, 10, 1));
         this.registerSetting(timerTicks = new SliderSetting("Timer ticks", 2, 0, 10, 1));
         this.registerSetting(minRange = new SliderSetting("Min range", 3.6, 0, 8, 0.1));
         this.registerSetting(maxRange = new SliderSetting("Max range", 5, 0, 8, 0.1));
-        this.registerSetting(delay = new SliderSetting("Delay", 500, 0, 4000, 1));
+        this.registerSetting(delay = new SliderSetting("Delay", 500, 0, 4000, 100, "ms"));
         this.registerSetting(fov = new SliderSetting("Fov", 180, 0, 360, 30));
         this.registerSetting(ignoreTeammates = new ButtonSetting("Ignore teammates", true));
         this.registerSetting(onlyOnGround = new ButtonSetting("Only onGround", false));
@@ -85,6 +84,7 @@ public class TimerRange extends Module {
         if (System.currentTimeMillis() - lastTimerTime < delay.getInput()) return false;
 
         EntityPlayer target = mc.theWorld.playerEntities.stream()
+                .filter(p -> p != mc.thePlayer)
                 .filter(p -> !ignoreTeammates.isToggled() || !Utils.isTeamMate(p))
                 .filter(p -> !Utils.isFriended(p))
                 .filter(p -> !AntiBot.isBot(p))

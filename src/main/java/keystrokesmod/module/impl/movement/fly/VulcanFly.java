@@ -25,6 +25,11 @@ public class VulcanFly extends SubMode<Fly> {
         this.registerSetting(timerSpeed = new SliderSetting("Timer speed", 2, 1.5, 5, 0.5, "x"));
     }
 
+    @Override
+    public void onDisable() {
+        Utils.resetTimer();
+    }
+
     @SubscribeEvent
     public void onBlockAABB(@NotNull BlockAABBEvent event) {
         if (BlockUtils.replaceable(event.getBlockPos())) {
@@ -38,6 +43,8 @@ public class VulcanFly extends SubMode<Fly> {
 
     @Override
     public void onUpdate() {
+        if (!Utils.nullCheck())
+            parent.disable();
         if (shouldTimer && timer.isToggled())
             Utils.getTimer().timerSpeed = (float) (timerSpeed.getInput() - Math.random() / 1000);
     }
