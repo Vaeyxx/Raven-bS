@@ -1,6 +1,7 @@
 package keystrokesmod.module;
 
 import keystrokesmod.Raven;
+import keystrokesmod.module.impl.client.Gui;
 import keystrokesmod.module.impl.client.Notifications;
 import keystrokesmod.module.impl.client.Settings;
 import keystrokesmod.module.setting.Setting;
@@ -25,6 +26,7 @@ public class Module {
     protected final ArrayList<Setting> settings;
     private final String moduleName;
     private String prettyName;
+    private String prettyInfo = "";
     private final Module.category moduleCategory;
     @Getter
     @Setter
@@ -80,6 +82,7 @@ public class Module {
 
     public Module(@NotNull Script script) {
         this(script.name, category.scripts);
+        this.script = script;
     }
 
     public void keybind() {
@@ -145,6 +148,10 @@ public class Module {
         return "";
     }
 
+    public String getPrettyInfo() {
+        return ModuleManager.customName.isEnabled() && ModuleManager.customName.info.isToggled() ? getRawPrettyInfo() : getInfo();
+    }
+
     public String getName() {
         return this.moduleName;
     }
@@ -157,8 +164,17 @@ public class Module {
         return prettyName;
     }
 
+    public String getRawPrettyInfo() {
+        return prettyInfo;
+    }
+
     public void setPrettyName(String name) {
         this.prettyName = name;
+        ModuleManager.sort();
+    }
+
+    public void setPrettyInfo(String name) {
+        this.prettyInfo = name;
         ModuleManager.sort();
     }
 
@@ -198,12 +214,12 @@ public class Module {
         if (this.isEnabled()) {
             this.disable();
             if (Settings.toggleSound.getInput() != 0) mc.thePlayer.playSound(Settings.getToggleSound(false), 1, 1);
-            if (Notifications.moduleToggled.isToggled())
+            if (Notifications.moduleToggled.isToggled() && !(this instanceof Gui))
                 Notifications.sendNotification(Notifications.NotificationTypes.INFO, "§4Disabled " + this.getPrettyName());
         } else {
             this.enable();
             if (Settings.toggleSound.getInput() != 0) mc.thePlayer.playSound(Settings.getToggleSound(true), 1, 1);
-            if (Notifications.moduleToggled.isToggled())
+            if (Notifications.moduleToggled.isToggled() && !(this instanceof Gui))
                 Notifications.sendNotification(Notifications.NotificationTypes.INFO, "§2Enabled " + this.getPrettyName());
         }
 

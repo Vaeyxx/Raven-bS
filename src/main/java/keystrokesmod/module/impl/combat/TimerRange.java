@@ -4,7 +4,6 @@ import akka.japi.Pair;
 import keystrokesmod.module.Module;
 import keystrokesmod.module.impl.world.AntiBot;
 import keystrokesmod.module.setting.impl.ButtonSetting;
-import keystrokesmod.module.setting.impl.DescriptionSetting;
 import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.script.classes.Vec3;
 import keystrokesmod.utility.Utils;
@@ -78,6 +77,7 @@ public class TimerRange extends Module {
     }
 
     private boolean shouldStart() {
+        if (!Utils.nullCheck()) return false;
         if (onlyOnGround.isToggled() && !mc.thePlayer.onGround) return false;
         if (!Utils.isMoving()) return false;
         if (fov.getInput() == 0) return false;
