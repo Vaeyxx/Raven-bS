@@ -61,17 +61,17 @@ public abstract class MixinEntityLivingBase extends Entity {
      * @author strangerrs
      * @reason mixin func110146f
      */
-    @Overwrite
-    protected float func_110146_f(float p_1101461, float p_1101462) {
+    @Inject(method = "func_110146_f", at = @At("HEAD"), cancellable = true)
+    protected void injectFunc110146_f(float p_110146_1_, float p_110146_2_, CallbackInfoReturnable<Float> cir) {
         float rotationYaw = this.rotationYaw;
         if (RotationHandler.fullBody != null && RotationHandler.rotateBody != null && !RotationHandler.fullBody.isToggled() && RotationHandler.rotateBody.isToggled() && (EntityLivingBase) (Object) this instanceof EntityPlayerSP) {
             if (this.swingProgress > 0F) {
-                p_1101461 = RotationUtils.renderYaw;
+                p_110146_1_ = RotationUtils.renderYaw;
             }
             rotationYaw = RotationUtils.renderYaw;
             rotationYawHead = RotationUtils.renderYaw;
         }
-        float f = MathHelper.wrapAngleTo180_float(p_1101461 - this.renderYawOffset);
+        float f = MathHelper.wrapAngleTo180_float(p_110146_1_ - this.renderYawOffset);
         this.renderYawOffset += f * 0.3F;
         float f1 = MathHelper.wrapAngleTo180_float(rotationYaw - this.renderYawOffset);
         boolean flag = f1 < 90.0F || f1 >= 90.0F;
@@ -91,10 +91,10 @@ public abstract class MixinEntityLivingBase extends Entity {
         }
 
         if (flag) {
-            p_1101462 *= -1.0F;
+            p_110146_2_ *= -1.0F;
         }
 
-        return p_1101462;
+        cir.setReturnValue(p_110146_2_);
     }
 
     @Shadow

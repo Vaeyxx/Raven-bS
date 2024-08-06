@@ -46,6 +46,7 @@ public class ModuleManager {
     public static PlayerESP playerESP;
     public static SafeWalk safeWalk;
     public static KeepSprint keepSprint;
+    public static ExtendCamera extendCamera;
     public static Velocity velocity;
     public static Tower tower;
     public static BedWars bedwars;
@@ -145,6 +146,7 @@ public class ModuleManager {
         this.addModule(lagRange = new LagRange());
         this.addModule(moreKB = new MoreKB());
         this.addModule(reach = new Reach());
+        this.addModule(extendCamera = new ExtendCamera());
         this.addModule(new RodAimbot());
         this.addModule(timerRange = new TimerRange());
         this.addModule(velocity = new Velocity());

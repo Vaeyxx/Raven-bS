@@ -49,6 +49,11 @@ public class ItemStack {
         return new ItemStack(itemStack);
     }
 
+    @Override
+    public String toString() {
+        return this.itemStack == null ? "" : this.itemStack.getItem().toString();
+    }
+
     public boolean is(Item item) {
         return this.itemStack.getItem() == item;
     }

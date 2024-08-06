@@ -41,7 +41,7 @@ public class MiddleClick extends Module {
         if (Mouse.isButtonDown(2) && !hasClicked) {
             switch ((int) middleClick.getInput()) {
                 case 0: {
-                    EntityLivingBase g = Utils.raytrace(30);
+                    EntityLivingBase g = Utils.raytrace(200);
                     if (g != null && !AntiBot.isBot(g) && !Utils.addFriend(g.getName())) {
                         Utils.removeFriend(g.getName());
                     }

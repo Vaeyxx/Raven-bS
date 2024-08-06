@@ -23,6 +23,9 @@ import net.minecraftforge.common.ForgeHooks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = EntityPlayer.class)
 public abstract class MixinEntityPlayer extends EntityLivingBase {
@@ -177,11 +180,12 @@ public abstract class MixinEntityPlayer extends EntityLivingBase {
      * @author strangerrrs
      * @reason mixin isBlocking
      */
-    @Overwrite
-    public boolean isBlocking() {
+    @Inject(method = "isBlocking", at = @At("RETURN"), cancellable = true)
+    private void isBlocking(CallbackInfoReturnable<Boolean> cir) {
         if (ModuleManager.killAura != null && ModuleManager.killAura.isEnabled()) {
             ModuleManager.killAura.block.get();
+            cir.setReturnValue(true);
         }
-        return this.isUsingItem() && this.itemInUse.getItem().getItemUseAction(this.itemInUse) == EnumAction.BLOCK;
+        cir.setReturnValue(cir.getReturnValue());
     }
 }

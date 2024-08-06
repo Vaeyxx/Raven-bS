@@ -127,7 +127,6 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer {
 
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new PostUpdateEvent());
         }
-
     }
 
     /**

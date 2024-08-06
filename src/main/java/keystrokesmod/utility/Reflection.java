@@ -49,9 +49,12 @@ public class Reflection {
     public static Method loadShader;
     public static Method getPlayerInfo;
     public static Field inGround;
+    public static Method getFOVModifier;
     public static Field itemInUseCount;
     public static Field S08PacketPlayerPosLookYaw;
     public static Field S08PacketPlayerPosLookPitch;
+    public static Field C06PacketPlayerPosLookYaw;
+    public static Field C06PacketPlayerPosLookPitch;
     public static Field C02PacketUseEntityEntityId;
     public static Field C03PacketPlayerOnGround;
     public static Field S12PacketEntityVelocityXMotion;
@@ -62,6 +65,7 @@ public class Reflection {
     public static Field S27PacketExplosionZMotion;
     public static Field EntityFallDistance;
     public static Field bookContents;
+    public static Field thirdPersonDistance;
     public static HashMap<Class, Field> containerInventoryPlayer = new HashMap<>();
     private static List<Class> containerClasses = new ArrayList<>();
     public static boolean sendMessage = false;
@@ -114,6 +118,11 @@ public class Reflection {
                 shaderResourceLocations.setAccessible(true);
             }
 
+            thirdPersonDistance = ReflectionHelper.findField(EntityRenderer.class, "thirdPersonDistance", "field_78490_B");
+            if (thirdPersonDistance != null) {
+                thirdPersonDistance.setAccessible(true);
+            }
+
             useShader = ReflectionHelper.findField(EntityRenderer.class, "useShader", "field_175083_ad");
             if (useShader != null) {
                 useShader.setAccessible(true);
@@ -142,6 +151,16 @@ public class Reflection {
             S08PacketPlayerPosLookPitch = ReflectionHelper.findField(S08PacketPlayerPosLook.class, "field_148937_e", "pitch");
             if (S08PacketPlayerPosLookPitch != null) {
                 S08PacketPlayerPosLookPitch.setAccessible(true);
+            }
+
+            C06PacketPlayerPosLookYaw = ReflectionHelper.findField(C03PacketPlayer.class, "field_149476_e", "yaw");
+            if (C06PacketPlayerPosLookYaw != null) {
+                C06PacketPlayerPosLookYaw.setAccessible(true);
+            }
+
+            C06PacketPlayerPosLookPitch = ReflectionHelper.findField(C03PacketPlayer.class, "field_149473_f", "pitch");
+            if (C06PacketPlayerPosLookPitch != null) {
+                C06PacketPlayerPosLookPitch.setAccessible(true);
             }
 
             C02PacketUseEntityEntityId = ReflectionHelper.findField(C02PacketUseEntity.class, "entityId", "field_149567_a");
@@ -226,6 +245,12 @@ public class Reflection {
 
             if (rightClickMouse != null) {
                 rightClickMouse.setAccessible(true);
+            }
+
+            getFOVModifier = ReflectionHelper.findMethod(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, new String[]{"func_78481_a", "getFOVModifier"}, float.class, boolean.class);
+
+            if (getFOVModifier != null) {
+                getFOVModifier.setAccessible(true);
             }
 
             loadShader = ReflectionHelper.findMethod(EntityRenderer.class, Minecraft.getMinecraft().entityRenderer, new String[]{"func_175069_a", "loadShader"}, ResourceLocation.class);

@@ -38,10 +38,10 @@ public abstract class MixinMinecraft {
         MinecraftForge.EVENT_BUS.post(new PreTickEvent());
     }
 
-    @Inject(method = "runTick", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;onStoppedUsingItem(Lnet/minecraft/entity/player/EntityPlayer;)V",
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/PlayerControllerMP;onStoppedUsingItem(Lnet/minecraft/entity/player/EntityPlayer;)V",
             shift = At.Shift.BY, by = 2
     ))
+
     private void onRunTick$usingWhileDigging(CallbackInfo ci) {
         if (ModuleManager.animations != null && ModuleManager.animations.isEnabled() && Animations.swingWhileDigging.isToggled()
                 && this.gameSettings.keyBindAttack.isKeyDown()) {

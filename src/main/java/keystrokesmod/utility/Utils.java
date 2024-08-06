@@ -18,6 +18,7 @@ import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.clicks.CPSCalculator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockSign;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -138,7 +139,7 @@ public class Utils {
     }
 
     public static double randomizeDouble(double min, double max) {
-        return Math.random() * (max - min) + min;
+        return min + (max - min) * rand.nextDouble();
     }
 
     public static boolean inFov(float fov, @NotNull BlockPos blockPos) {
@@ -233,6 +234,15 @@ public class Utils {
             }
         }
         return n2;
+    }
+
+    public static boolean onLadder(Entity entity) {
+        int posX = MathHelper.floor_double(entity.posX);
+        int posY = MathHelper.floor_double(entity.posY - 0.20000000298023224D);
+        int posZ = MathHelper.floor_double(entity.posZ);
+        BlockPos blockpos = new BlockPos(posX, posY, posZ);
+        Block block1 = Minecraft.getMinecraft().theWorld.getBlockState(blockpos).getBlock();
+        return block1 instanceof BlockLadder && !entity.onGround;
     }
 
     public static int getWeapon() {
@@ -331,6 +341,10 @@ public class Utils {
 
     public static double getRandomValue(SliderSetting a, SliderSetting b, Random r) {
         return a.getInput() == b.getInput() ? a.getInput() : a.getInput() + r.nextDouble() * (b.getInput() - a.getInput());
+    }
+
+    public static double getRandomValue(double a, double b, Random r) {
+        return a == b ? a : a + r.nextDouble() * (b - a);
     }
 
     public static boolean nullCheck() {
