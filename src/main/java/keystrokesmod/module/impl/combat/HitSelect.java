@@ -14,7 +14,7 @@ import static keystrokesmod.module.ModuleManager.hitSelect;
 
 public class HitSelect extends Module {
     private static final String[] MODES = new String[]{"Pause", "Active"};
-    private static final String[] PREFERENCES = new String[]{"Move Speed", "KB Reduction", "Critical Hits"};
+    private static final String[] PREFERENCES = new String[]{"Move speed", "KB reduction", "Critical hits"};
     private final ModeSetting preference;
     private final ModeSetting mode;
     private final SliderSetting delay;
@@ -27,13 +27,13 @@ public class HitSelect extends Module {
         super("HitSelect", category.combat, "Chooses the best time to hit.");
         this.registerSetting(mode = new ModeSetting("Mode", MODES, 0,
                 "Pause: Legitimate pause clicking\n" +
-                "Active: Cancel attack but allow click"));
+                        "Active: Cancel attack but allow click"));
         this.registerSetting(preference = new ModeSetting("Preference", PREFERENCES, 0,
-                "Move Speed: Keep sprint but legitimate\n" +
-                        "KB Reduction: KnockBack reduction\n" +
-                        "Critical Hits: Critical hit frequency"));
+                "Move speed: Keep sprint but legitimate\n" +
+                        "KB reduction: KnockBack reduction\n" +
+                        "Critical hits: Critical hit frequency"));
         this.registerSetting(delay = new SliderSetting("Delay", 300, 100, 500, 1));
-        this.registerSetting(chance = new SliderSetting("Chance", 80, 0, 100, 1));
+        this.registerSetting(chance = new SliderSetting("Chance", 100, 0, 100, 1));
     }
 
     @Override
@@ -48,12 +48,15 @@ public class HitSelect extends Module {
             return;
         }
 
-        attackTime = System.currentTimeMillis();
+        if (canAttack())
+            attackTime = System.currentTimeMillis();
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPreUpdate(PreUpdateEvent event) {
-        if (Math.random() > hitSelect.chance.getInput()) {
+        currentShouldAttack = false;
+
+        if (Math.random() * 100 > hitSelect.chance.getInput()) {
             currentShouldAttack = true;
         } else {
             switch ((int) preference.getInput()) {
