@@ -25,7 +25,6 @@ public class RotationUtils {
     public static void setRenderYaw(float yaw) {
         mc.thePlayer.rotationYawHead = yaw;
         if (RotationHandler.rotateBody.isToggled() && RotationHandler.fullBody.isToggled()) {
-            mc.thePlayer.prevRenderYawOffset = prevRenderYaw;
             mc.thePlayer.renderYawOffset = yaw;
         }
     }
@@ -146,7 +145,7 @@ public class RotationUtils {
         return (float) (Math.atan2(n - mc.thePlayer.posX, n2 - mc.thePlayer.posZ) * 57.295780181884766 * -1.0);
     }
 
-    public static MovingObjectPosition rayCast(final Vec3 from, final double distance, final float yaw, final float pitch) {
+    public static MovingObjectPosition rayCast(Vec3 from, double distance, float yaw, float pitch) {
         final float n4 = -yaw * 0.017453292f;
         final float n5 = -pitch * 0.017453292f;
         final float cos = MathHelper.cos(n4 - 3.1415927f);
@@ -156,7 +155,7 @@ public class RotationUtils {
         return mc.theWorld.rayTraceBlocks(from, from.addVector(vec3.xCoord * distance, vec3.yCoord * distance, vec3.zCoord * distance), false, false, false);
     }
 
-    public static MovingObjectPosition rayCast(double distance, float yaw, float pitch) {
+    public static MovingObjectPosition rayCast(final double distance, final float yaw, final float pitch) {
         final Vec3 getPositionEyes = mc.thePlayer.getPositionEyes(1.0f);
         return rayCast(getPositionEyes, distance, yaw, pitch);
     }
@@ -225,6 +224,23 @@ public class RotationUtils {
         } else pointZ = Math.max(to.z(), from.minZ);
 
         return new keystrokesmod.script.classes.Vec3(pointX, pointY, pointZ);
+    }
+
+    public static EnumFacing getEnumFacing(keystrokesmod.script.classes.@NotNull Vec3 hitPos, @NotNull AxisAlignedBB box) {
+        if (hitPos.y() == box.maxY) {
+            return EnumFacing.UP;
+        } else if (hitPos.y() == box.minY) {
+            return EnumFacing.DOWN;
+        } else if (hitPos.x() == box.minX) {
+            return EnumFacing.WEST;
+        } else if (hitPos.x() == box.maxX) {
+            return EnumFacing.EAST;
+        } else if (hitPos.z() == box.minZ) {
+            return EnumFacing.NORTH;
+        } else if (hitPos.z() == box.maxZ) {
+            return EnumFacing.SOUTH;
+        }
+        return mc.thePlayer.getHorizontalFacing();
     }
 
     @Contract("_, _ -> new")

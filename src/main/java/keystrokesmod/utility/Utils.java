@@ -3,9 +3,14 @@ package keystrokesmod.utility;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mojang.realmsclient.gui.ChatFormatting;
+import keystrokesmod.Raven;
 import keystrokesmod.event.ClickEvent;
 import keystrokesmod.mixins.impl.client.GuiScreenAccessor;
+import keystrokesmod.mixins.impl.render.MixinFontRenderer;
+import keystrokesmod.module.impl.other.NameHider;
 import keystrokesmod.module.impl.other.SlotHandler;
+import keystrokesmod.module.impl.render.AntiShuffle;
+import keystrokesmod.utility.i18n.I18nManager;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.MouseEvent;
@@ -18,6 +23,7 @@ import keystrokesmod.module.setting.impl.SliderSetting;
 import keystrokesmod.utility.clicks.CPSCalculator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockSign;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -43,6 +49,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -51,11 +58,14 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 import java.nio.ByteBuffer;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 public class Utils {
     private static final Random rand = new Random();
     public static final Minecraft mc = Minecraft.getMinecraft();
+    public static final ChatComponentText PREFIX = new ChatComponentText("&7[&dR&7]&r ");
     public static HashSet<String> friends = new HashSet<>();
     public static HashSet<String> enemies = new HashSet<>();
     public static final Logger log = LogManager.getLogger();
@@ -138,7 +148,7 @@ public class Utils {
     }
 
     public static double randomizeDouble(double min, double max) {
-        return Math.random() * (max - min) + min;
+        return min + (max - min) * rand.nextDouble();
     }
 
     public static boolean inFov(float fov, @NotNull BlockPos blockPos) {
@@ -177,11 +187,51 @@ public class Utils {
         return MathHelper.wrapAngleTo180_double((yaw - RotationUtils.angle(posX, posZ)) % 360.0f);
     }
 
+    private static final Queue<String> delayedMessage = new ConcurrentLinkedQueue<>();
+
     public static void sendMessage(String txt) {
         if (nullCheck()) {
-            String m = formatColor("&7[&dR&7]&r " + txt);
+            String m = formatColor("&7[&dR&7]&r " + replace(txt));
             mc.thePlayer.addChatMessage(new ChatComponentText(m));
         }
+    }
+
+    public static @Nullable String replace(String string) {
+        if (string == null)
+            return null;
+        if (ModuleManager.nameHider != null && ModuleManager.nameHider.isEnabled()) {
+            string = NameHider.getFakeName(string);
+        }
+        if (ModuleManager.antiShuffle != null && ModuleManager.antiShuffle.isEnabled()) {
+            string = AntiShuffle.removeObfuscation(string);
+        }
+        if (ModuleManager.language != null && ModuleManager.language.isEnabled()) {
+            List<Map<String, String>> replaceMap = I18nManager.REPLACE_MAP;
+            int index = (int) ModuleManager.language.mode.getInput();
+            if (replaceMap.size() > index)
+                string = replaceMap.get(index).getOrDefault(string, string);
+        }
+
+        return string;
+    }
+
+    public static void sendMessageAnyWay(String txt) {
+        if (nullCheck()) {
+            sendMessage(txt);
+        } else {
+            delayedMessage.add(txt);
+        }
+    }
+
+    static {
+        Raven.getExecutor().scheduleWithFixedDelay(() -> {
+            if (Utils.nullCheck() && !delayedMessage.isEmpty()) {
+                for (String s : delayedMessage) {
+                    sendMessage(s);
+                }
+                delayedMessage.clear();
+            }
+        }, 1000, 1000, TimeUnit.MILLISECONDS);
     }
 
     public static void sendDebugMessage(String message) {
@@ -211,6 +261,7 @@ public class Utils {
     }
 
     public static float getCompleteHealth(EntityLivingBase entity) {
+        if (entity == null) return 0;
         return entity.getHealth() + entity.getAbsorptionAmount();
     }
 
@@ -233,6 +284,15 @@ public class Utils {
             }
         }
         return n2;
+    }
+
+    public static boolean onLadder(Entity entity) {
+        int posX = MathHelper.floor_double(entity.posX);
+        int posY = MathHelper.floor_double(entity.posY - 0.20000000298023224D);
+        int posZ = MathHelper.floor_double(entity.posZ);
+        BlockPos blockpos = new BlockPos(posX, posY, posZ);
+        Block block1 = Minecraft.getMinecraft().theWorld.getBlockState(blockpos).getBlock();
+        return block1 instanceof BlockLadder && !entity.onGround;
     }
 
     public static int getWeapon() {
@@ -331,6 +391,10 @@ public class Utils {
 
     public static double getRandomValue(SliderSetting a, SliderSetting b, Random r) {
         return a.getInput() == b.getInput() ? a.getInput() : a.getInput() + r.nextDouble() * (b.getInput() - a.getInput());
+    }
+
+    public static double getRandomValue(double a, double b, Random r) {
+        return a == b ? a : a + r.nextDouble() * (b - a);
     }
 
     public static boolean nullCheck() {
