@@ -15,7 +15,7 @@ public abstract class Setting {
     public String n;
     public Supplier<Boolean> visibleCheck;
     public boolean viewOnly;
-    private final @Nullable String toolTip;
+    public @Nullable String toolTip;
     @Setter
     protected @Nullable Module parent = null;
 
